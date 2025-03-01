@@ -54,11 +54,7 @@ public class BookAcquisitionRunner {
         Scanner scanner = new Scanner(System.in);
         ArrayList<BookAndQty> bookAndQties = new ArrayList<>();
 
-        while (true) {
-            if (currentlyOrderedQty >= bookQty) {
-                break;
-            }
-
+        while (currentlyOrderedQty < bookQty) {
             int qty;
             String title;
 
@@ -89,7 +85,7 @@ public class BookAcquisitionRunner {
         for (int i = 0, l = bookAndQties.size(); i < l; ++i) {
             BookAndQty bookAndQty = bookAndQties.get(i);
             Book book = bookAndQty.book;
-            double discountedPrice = bookAndQty.qty < 4 ? book.bookPrice : bookAndQty.qty < 6 ? book.bookPrice * 0.25 : book.bookPrice * 0.5;
+            double discountedPrice = bookAndQty.qty < 4 ? 0 : bookAndQty.qty < 6 ? book.bookPrice * 0.25 : book.bookPrice * 0.5;
 
             for (int j = 0, l2 = bookAndQties.size(); j < l2; ++j) {
                 if (j == i) {
@@ -102,12 +98,12 @@ public class BookAcquisitionRunner {
 
                 if (book.bookTitle.equals(book2.bookTitle) && book.author.eq(book2.author)) {
                     didApplyDiscount = true;
-                    discountedPrice *= 0.1;
+                    discountedPrice += book.bookPrice * 0.1;
                 }
 
                 if (book.bookCategory == book2.bookCategory && book.author.eq(book2.author)) {
                     didApplyDiscount = true;
-                    discountedPrice *= 0.2;
+                    discountedPrice += book.bookPrice * 0.2;
                 }
 
                 if (didApplyDiscount) {
@@ -115,11 +111,9 @@ public class BookAcquisitionRunner {
                 }
             }
 
-            if (discountedPrice == book.bookPrice) {
-                totalPrice += bookAndQty.qty * book.bookPrice;
-            } else {
-                totalPrice += bookAndQty.qty * (book.bookPrice - discountedPrice);
-            }
+            bookAndQty.price = bookAndQty.qty * (book.bookPrice - discountedPrice);
+
+            totalPrice += bookAndQty.price;
         }
 
         scanner.close();
@@ -129,7 +123,7 @@ public class BookAcquisitionRunner {
         for (BookAndQty bookAndQty : bookAndQties) {
             bookAndQty.book.displayInfo();
             System.out.println("Quantity: " + bookAndQty.qty);
-            System.out.println("Price: " + bookAndQty.book.bookPrice + "\n");
+            System.out.println("Price: " + bookAndQty.price + "\n");
         }
 
         System.out.println("\nTOTAL: " + this.totalPrice);
@@ -148,10 +142,12 @@ public class BookAcquisitionRunner {
 
 class BookAndQty {
     public int qty;
+    public double price;
     public Book book;
 
     public BookAndQty(int qty, Book book) {
         this.qty = qty;
+        this.price = 0;
         this.book = book;
     }
 }

@@ -13,6 +13,4 @@ public class Main {
 
         frame.dispose();
     }
-
-
 }
